@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Login</title>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
+	</head>
+	<body>
+		<div class="row ">
+		<div class="col-md-5"></div>
+		<div class="col-md-2">
+		<h1>Chat App</h1>
+		<div class="form-group row">
+		<div class="col-md-12">
+		<form method="post" action="auth">
+		<div class="form-group row">
+		<div class="col-sm-12">
+		<% if (error) { %>
+		<div class="text-danger"><%= error %></div>
+		<% } %>
+		<% if (errors.nickName) { %>
+		<div class="text-danger"><%= errors.nickName.msg %></div>
+		<% } %>
+		<% if (errors.passCode) { %>
+		<div class="text-danger"><%= errors.passCode.msg %></div>
+		<% } %>
+		<input type="text" class="form-control" id="nickName" name="nickName" placeholder="NickName" required>
+		</div>
+		</div>
+		<div class="form-group row">
+		<div class="col-sm-12">
+		<input type="password" class="form-control" id="passCode" name="passCode" placeholder="PassCode" required>
+		</div>
+		</div>
+		<div class="form-group row">
+		<div class="col-sm-10">
+		<button type="submit" class="btn" style="width: 60%; margin-left: 4.8rem;">Log in</button>
+		</div>
+		</div>
+		<div class="form-group row">
+		<div class="col-sm-10">
+		<a href="register" style="margin-left: 5.8rem;">Create an account</a>
+		</div>
+		</div>
+		</form>
+		</div>
+		</div>
+		</div>
+		</div>
+	</body>
+</html>
