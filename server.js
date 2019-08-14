@@ -3,7 +3,7 @@ var app = express();
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 var ejs = require("ejs");
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var cookieParser = require('cookie-parser')
 var jsonwebtoken  =  require('jsonwebtoken');
 var redis = require('redis');
@@ -63,7 +63,7 @@ var query = { "fromAddress": "01" };
         if(err){
             console.log(err);
         }
-        if(data !== ''){
+        if(data.length > 0){
             if (data[0].timeStamp !==''){
 				          resentMsg =data[0].timeStamp + data[0].message;
 
@@ -270,7 +270,7 @@ function getDateTime(){
     format_str = format_str.replace(/hh/g, hour_str);
     format_str = format_str.replace(/mm/g, minute_str);
     format_str = format_str.replace(/ss/g, second_str);
-
+console.log(format_str);
     return format_str;
 
 }

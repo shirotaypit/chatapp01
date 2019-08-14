@@ -1,4 +1,4 @@
-var bcrypt = require('bcrypt');
+var bcrypt = require('bcryptjs');
 var sanitize = require('mongo-sanitize');
 
 const db = require('../_helpers/db');
@@ -23,7 +23,7 @@ function create(userParam) {
 	}
     if (passCode) {
 		// ハッシュパスコードを保存する
-        user.passCode = bcrypt.hashSync(passCode, saltRounds);
+        user.passCode = bcrypt.hashSync(passCode, bcrypt.genSaltSync(saltRounds));
     }
     // save user
      user.save();
