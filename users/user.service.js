@@ -1,4 +1,5 @@
 var bcrypt = require('bcrypt');
+var sanitize = require('mongo-sanitize');
 
 const db = require('../_helpers/db');
 const User = db.User;
@@ -11,19 +12,22 @@ module.exports = {
 // ユーザーモデルを作成し、データベースに保存する
 function create(userParam) {
 
-    const user = new User(userParam);
-	
+	const nickName = sanitize(userParam.nickName);
+	const passCode = sanitize(userParam.passCode);
+    const user = new User();
+	user.nickName = nickName;
 	// 画像はオプションです。デフォルト画像を使用して選択されていません
 	if(userParam.ufile){
 		user.userImage=userParam.ufile;
 
 	}
-    if (userParam.passCode) {
+    if (passCode) {
 		// ハッシュパスコードを保存する
-        user.passCode = bcrypt.hashSync(userParam.passCode, saltRounds);
+        user.passCode = bcrypt.hashSync(passCode, saltRounds);
     }
     // save user
      user.save();
+	 console.log(user);
 
 }
 
