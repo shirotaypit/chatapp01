@@ -73,8 +73,38 @@
   bottom: 0px;
   font-size: 80%;
   color: white;
+  top: 14px;
 }
 
+.base_view .myText .imageDate {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 100px;
+  text-align: right;
+  left: -30px;
+  bottom: 0px;
+  font-size: 80%;
+  color: white;
+  top: 112px;
+}
+.base_view .myText .imageData {
+  padding: 10px;
+  margin: 0;
+  margin-left: 80px;
+}
+.base_view .myText .textImageDate {
+  content: '';
+  position: absolute;
+  display: block;
+  width: 100px;
+  text-align: right;
+  left: -30px;
+  bottom: 0px;
+  font-size: 80%;
+  color: white;
+  top: 150px;
+}
 
 
  /* 相手の会話 */

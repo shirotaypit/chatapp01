@@ -13,41 +13,34 @@
     <div class="row">
     <div class="col-12 col-md-12">
 	<table class="table" name="user-list-table">
-  <thead class="thead-light">
+	<thead class="thead-light">
     <tr>
-      <th colspan="2" scope="row" style="background-color:#1b313f;color:#ffffff">Friends <a href="/logout"><i class="fa fa-sign-out" style="float:right;" aria-hidden="true"></a></i></th>
-	  
-
+      <th colspan="2" scope="row" style="background-color:#1b313f;color:#ffffff">Friends <a href="/logout"><i class="fa fa-sign-out" style="float:right;color:white" aria-hidden="true"></a></i></th>
     </tr>
-  </thead>
-  <tbody>
-  
+	</thead>
+	<tbody>
     <tr>
-	<td style="width: 5%;text-align: center;"><img src="/images/defaultFace.png" class="image" id="image-frame" height="50px" width="50px" style="margin-top: -10%;"/></td>
-      <td onclick="showChatWindow()" style="cursor:pointer;padding-top:14px;">Echo さん</td>
-	 </tr>
+		<td style="width: 5%;text-align: center;"><img src="/images/defaultFace.png" class="image" id="image-frame" height="50px" width="50px" style="margin-top: -10%;"/></td>
+		<td style="cursor:pointer;padding-top:14px;"><a href="/chat?id=0"  style="text-decoration:none">Echo さん</a>
+		</td>
+	</tr>
 	<% if (listUsers) { for(var i=0; i < listUsers.length; i++) { %>
 	<tr>
-	<td style="width: 5%;text-align: center;">	<% if (listUsers[i].userImage) { %>
-<img src="data:image/png;base64,<%= listUsers[i].userImage %>" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/>
-<% } else {%>
-<img src="/images/defaultFace.png" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/><% }%></td>
-	<td onclick="showChatWindow()" style="cursor:pointer;padding-top:14px;"><%= listUsers[i].nickName %> さん</td>
+		<td style="width: 5%;text-align: center;">	<% if (listUsers[i].userImage) { %>
+			<img src="data:image/png;base64,<%= listUsers[i].userImage %>" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/>
+			<% } else {%>
+		<img src="/images/defaultFace.png" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/><% }%>
+		</td>
+		<td style="cursor:pointer;padding-top:14px;"><a  style="text-decoration:none" href="/chat?id=<%= listUsers[i].id %>"><%= listUsers[i].nickName %> さん </a>
+		</td>
 	</tr>
 	<% } }%>
-	</tr>
-    
-  </tbody>
+</tbody>
 </table>
-    
-    </div>
-  </div>
-       
+</div>
+</div>
 </body>
 <script>
-function showChatWindow(){
-location.href="chat";
-}
 
 </script>
 </html>

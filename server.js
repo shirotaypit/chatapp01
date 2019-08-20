@@ -44,7 +44,8 @@ var Chats = mongoose.model(chatCollection, {
     fromAddress : String,
     toAddress : String,
     message : String,
-    timeStamp :String
+    timeStamp :String,
+	image: String
 });
 
 
@@ -90,7 +91,8 @@ app.post('/api/messages', verifyToken, (req, res) => {
             fromAddress : myID,
             toAddress : f1ID,
             message : postData.mess,
-            timeStamp : getDateTime()
+            timeStamp : getDateTime(),
+			image: postData.image
         })
         .then((postData) => {
             res.json(postData.mess);
@@ -107,7 +109,7 @@ const timer = setInterval(function(){
         if(err){
             console.log(err);
         }
-        if ( data[0].fromAddress == '01') {
+        if (data.length > 0 &&  data[0].fromAddress == '01') {
             if ( resentMsg != data[0].timeStamp + data[0].message) {
                 resentMsg = data[0].timeStamp + data[0].message;
                 msgFooking(data[0].message);
@@ -118,12 +120,15 @@ const timer = setInterval(function(){
 
 // （暫定）ECHOさんの処理
 function msgFooking(msg){
+	console.log("msg"+msg);
+	if(msg != '') {
     Chats.create({
         fromAddress : f1ID,
         toAddress : myID,
         message : msg + "ですね",
         timeStamp : getDateTime()
     });
+	}
 }
 
 //ログイン画面をレンダリングする
@@ -156,7 +161,7 @@ app.post('/auth',[check('nickName', 'Please enter nick name.').not().isEmpty().t
         if(!result) return  res.render('login.ejs',  {error: 'Passcode is invalid.', errors:false});
         //JSON Webトークンを生成する,トークンの有効期限を15分に設定
 		const  expiresIn  =  900;
-        const  accessToken  =  jsonwebtoken.sign({ name :  user.nickName }, config.secret, {
+        const  accessToken  =  jsonwebtoken.sign({id : user._id, name :  user.nickName }, config.secret, {
             expiresIn:  expiresIn
         });
 		//トークンをクッキーに保存する
@@ -215,8 +220,7 @@ app.get('/home', verifyToken, function(req, res, next) {
 	  if(doc.userImage != undefined){
 	   base64Data = doc.userImage.replace(/^data:image\/png;base64,/, "")
 	  }
-
-	users.push({nickName : doc.nickName, userImage: base64Data });
+	 users.push({id : doc._id, nickName : doc.nickName, userImage: base64Data });
   })
   .on('error', function(err){
 	res.send(err);
@@ -231,10 +235,22 @@ app.get('/home', verifyToken, function(req, res, next) {
 // ルートアクセス時にベースの画面を返す
 // 友達の名前とそれぞれのIDをEJSでHTMLに埋め込む
 app.get('/chat', verifyToken, (req, res) => {
-    res.render('chatapp.ejs',
-        {frendName: 'Echo' ,
-         myidf: myID ,
-         fiidf: f1ID });
+	// 0への一時的な設定ID
+	if(req.query.id == 0){
+		res.render('chatapp.ejs',
+			{frendName:'ECHO' ,
+			myidf: myID ,
+			fiidf: f1ID });  
+	}
+	//
+	 User.findOne({'_id': req.query.id}).then(user => {
+      if (user) {
+			res.render('chatapp.ejs',
+			{frendName:user.nickName ,
+			myidf: myID ,
+			fiidf: f1ID });      
+		 }
+});
 });
 
 app.get('/logout', function(req, res, next) {

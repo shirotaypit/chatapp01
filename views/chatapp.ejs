@@ -13,22 +13,37 @@
 <body>
     <div class="base_view ">
         <div class="title">
-            <%=frendName %>さん <a href="/logout"><i class="fa fa-sign-out" style="float:right;" aria-hidden="true"></a></i>
+            <%=frendName %>さん <a href="/logout"><i class="fa fa-sign-out" style="float:right;color:white" aria-hidden="true"></a></i>
         </div>
         <div id="area" class="contents scroll">
+			
+
         </div>
     </div>
         <div class="form-group" >
+					<div class="text-danger" id="error" style="color:red;"></div>
+
            <table>
+		   <tr id="imageArea"></tr>
                 <tr>
+					<td style="width:0.5%;">
+						<input id="imageFiles" type="file" style="display:none" name="imageFiles" multiple="multiple"/>
+						<a href="" id="upload-link"> <i class="fa fa-image" style="font-size: 43px;color: #b1b5c1;margin-top:-1rem;"></i></a>
+						<input id="" name="image" type="hidden" class="imageData" />
+					</td>
                     <td>
                         <input id="inp" type="text" name="name" class="newMessage form-control" autocomplete="nope" >
                     </td>
+					
                     <td width=80px>
-                        <button type="submit" class="btn" onclick="pushMessage()" >送信</button>
+						<button type="submit" class="btn" onclick="pushMessage()" >送信</button>
                     </td>
                 </tr>
             </table>
+
         </div>
 </body>
+<script>
+
+</script>
 </html>

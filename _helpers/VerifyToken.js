@@ -22,6 +22,7 @@ function verifyToken(req, res, next) {
       
     // すべてうまくいけば、他のルートで使用するために保存して
     req.name = decoded.name;
+	req.id = decoded.id;
     next();
   });
 }
