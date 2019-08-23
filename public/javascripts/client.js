@@ -121,7 +121,7 @@ function readJPEGFile(evt) {
 
 		var height = this.height;
 		var width = this.width;
-		if (height > 400 || width > 300) {
+		if (height > 300 && width > 400) {
 			document.getElementById("error").innerHTML ='Image file size should be less than 400 x 300';
 			return;
 		}else {
