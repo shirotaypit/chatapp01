@@ -85,7 +85,7 @@ $("#upload-link").on('click', function(e){
 
 $(function(){
 $("#imageFiles").on("change", function(evt) {
-		$("#error").innerHTML = '';
+		document.getElementById('error').innerHTML = '';
 		var files = evt.target.files;
 		if(files.length == 0) return;
 		targetFile = files[0];
@@ -102,15 +102,7 @@ $("#imageFiles").on("change", function(evt) {
 });
 
 function readJPEGFile(evt) {
-		var img = new Image();
-        img.src = window.URL.createObjectURL(targetFile);
-        img.onload = function() {
-		if(img.naturalWidth > 400 && img.naturalHeight > 300){
-        document.getElementById("error").innerHTML ='Image file size should be less than 400 x 300';
-		window.URL.revokeObjectURL( img.src );
-		return;
-		}
-		}
+	
 		var bin = evt.target.result;
 		var sigJFIF = String.fromCharCode(0x4A, 0x46, 0x49, 0x46, 0x00);
 		var sigEXIF = String.fromCharCode(0x45, 0x78, 0x69, 0x66, 0x00);
@@ -123,14 +115,26 @@ function readJPEGFile(evt) {
 		
 		var reader = new FileReader();
 		reader.onload = function(e) {
-		
+		var image = new Image();
+		image.src = reader.result;
+		image.onload = function () {
+
+		var height = this.height;
+		var width = this.width;
+		if (height > 400 || width > 300) {
+			document.getElementById("error").innerHTML ='Image file size should be less than 400 x 300';
+			return;
+		}else {
 			$(".imageData").val(reader.result);
+			pushMessage();
+		}
+		}	
 		}
 		reader.readAsDataURL(targetFile);
 		
 }
 
 // 3秒ごとに再描画のgetを行う
-setInterval("getMessages()",30000000);
+setInterval("getMessages()",3000);
 
 $(getMessages);
