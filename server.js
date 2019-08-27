@@ -1,6 +1,9 @@
+var httpContext = require('express-http-context');
+
 var express  = require('express');
 var app = express();
 var mongoose = require('mongoose');
+//mongoose.set('debug', true);
 var bodyParser = require('body-parser');
 var ejs = require("ejs");
 var bcrypt = require('bcryptjs');
@@ -9,7 +12,7 @@ var jsonwebtoken  =  require('jsonwebtoken');
 var redis = require('redis');
 var client = redis.createClient(); 
 var sanitize = require('mongo-sanitize');
-
+var fs = require('fs');
 
 const { check, validationResult } = require('express-validator');
 const userService = require('./users/user.service');
@@ -23,6 +26,8 @@ app.engine('ejs',ejs.renderFile);
 app.use(express.static(__dirname + '/public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); 
+
+// redisサーバーに接続する
 client.on('connect', function() {
     console.log('connected');
 });
@@ -30,36 +35,38 @@ client.on('connect', function() {
 // （暫定）会話用のIDを設定
 var myID = '01';
 var f1ID = '02';
+var echoID = 1;
 
 // （暫定）会話用のコレクション名を作成
-var chatCollection = myID + f1ID;
+var chatCollection = 'Messages'; //myID + f1ID;
 
 //　MongoDBに接続
 mongoose.connect('mongodb://localhost/mydb',{ useNewUrlParser: true });
 
-
-
 // （暫定）会話格納用（スタンプや画像はまだ）
 var Chats = mongoose.model(chatCollection, {
-    fromAddress : String,
-    toAddress : String,
+    fromAddress : Number,
+    toAddress : Number,
     message : String,
-    timeStamp :String,
-	image: String
+    timeStamp : String,
+	image: String,
+	stampTitle: String
 });
 
-
 //  最初の挨拶を登録
+function sendGreetings(loggedInUserId){
 Chats.create({
-    fromAddress : f1ID,
-    toAddress : myID,
+    fromAddress : echoID,
+    toAddress : loggedInUserId,
     message : 'こんにちは',
     timeStamp : getDateTime()
-    });
+});
+}
 
 // 直近の会話を比較用に保存
+function getRecentMessage(loggedInUserId){
 var resentMsg = "---";
-var query = { "fromAddress": "01" };
+var query = { "fromAddress": loggedInUserId };
     Chats.find(query,{},{sort:{_id: -1},limit:1}, function(err, data){
         if(err){
             console.log(err);
@@ -71,28 +78,29 @@ var query = { "fromAddress": "01" };
             }
         }
     });
-
+	return resentMsg;
+}
 // クライアントからgetされると会話全件をjsonで返す
 app.get('/api/messages', verifyToken, (req, res) => {
-    Chats.find()
-            .then((messages) => {
-            res.json(messages);
-        })
-        .catch((err) => {
-            res.send(err);
-        })
+   		var loggedInUserId = req.id;
+		var friendId = parseInt(req.query.f1ID,10);
+		// ログインしているユーザーと選択した友人の会話を取得する
+		Chats.aggregate([{$match:{"fromAddress":{$in:[loggedInUserId,friendId]},"toAddress":{$in:[friendId,loggedInUserId]}} }]).then((messages) => {
+		res.json(messages);
+		})
 });
+
 
 // 会話内容がポストされれば、それを登録する
 app.post('/api/messages', verifyToken, (req, res) => {
     var postData = req.body;
-
     Chats.create({
-            fromAddress : myID,
-            toAddress : f1ID,
+            fromAddress : req.id,
+            toAddress : postData.f1ID,
             message : postData.mess,
             timeStamp : getDateTime(),
-			image: postData.image
+			image: postData.image,
+			stampTitle: postData.stampLabel
         })
         .then((postData) => {
             res.json(postData.mess);
@@ -103,28 +111,27 @@ app.post('/api/messages', verifyToken, (req, res) => {
 });
 
 // （暫定）1秒ごとに新しいメッセージを検索する
-const timer = setInterval(function(){
+function serachNewMessages(loggedInUserId, resentMsg) {
     var query = { };
     Chats.find(query,{},{sort:{_id: -1},limit:1}, function(err, data){
         if(err){
             console.log(err);
         }
-        if (data.length > 0 &&  data[0].fromAddress == '01') {
+        if (data.length > 0 &&  data[0].fromAddress == loggedInUserId) {
             if ( resentMsg != data[0].timeStamp + data[0].message) {
                 resentMsg = data[0].timeStamp + data[0].message;
-                msgFooking(data[0].message);
+                msgFooking(data[0].message, loggedInUserId);
             }
         }
     });
-},1000);
+}
 
 // （暫定）ECHOさんの処理
-function msgFooking(msg){
-	console.log("msg"+msg);
+function msgFooking(msg, loggedInUserId){
 	if(msg != '') {
     Chats.create({
-        fromAddress : f1ID,
-        toAddress : myID,
+        fromAddress : echoID,
+        toAddress : loggedInUserId,
         message : msg + "ですね",
         timeStamp : getDateTime()
     });
@@ -149,7 +156,7 @@ app.post('/auth',[check('nickName', 'Please enter nick name.').not().isEmpty().t
 		
 		const  nickName  =  sanitize(req.body.nickName);
 		const  passcode  =  sanitize(req.body.passCode);
-
+	
 		User.findOne({nickName}, (err, user)=>{
         if (err) return  res.status(500).send(err);
 		
@@ -167,7 +174,6 @@ app.post('/auth',[check('nickName', 'Please enter nick name.').not().isEmpty().t
 		//トークンをクッキーに保存する
 		res.cookie('auth',accessToken , { maxAge: 900000, httpOnly: true });
 		
-        //res.json({success:true,message:'Success', token:accessToken, user: {username:user.nickName}});
         res.redirect('/home');
     });
  });
@@ -198,8 +204,7 @@ app.post('/save', [
 	//検証エラー
   if (!errors.isEmpty()) {
      res.render('register.ejs',{data: req.body, errors: errors.mapped() });
-  }else{
-				
+  }else{				
 		//エラーなし, データベースにユーザー情報を保存する	  
 		userService.create(req.body);
      
@@ -210,22 +215,23 @@ app.post('/save', [
 });
 
 
-//ホームページのルーティング
+// ホームページのルーティング
 app.get('/home', verifyToken, function(req, res, next) {
 	var users = [];
-	 User.find({ nickName: {$ne: req.name}})
-           .stream()
-  .on('data', function(doc){
-	   var base64Data;
+	var base64Data;
+	// ログインしたユーザーを除くすべての登録ユーザーをデータベースから取得し、ユーザー名とプロファイル画像のjsonオブジェクトを作成します
+	User.find({ nickName: {$ne: req.name}}).stream().on('data', function(doc) {
 	  if(doc.userImage != undefined){
-	   base64Data = doc.userImage.replace(/^data:image\/png;base64,/, "")
+		  
+		base64Data = doc.userImage.replace(/^data:image\/png;base64,/, "")
+		
 	  }
-	 users.push({id : doc._id, nickName : doc.nickName, userImage: base64Data });
-  })
-  .on('error', function(err){
-	res.send(err);
-  })
-  .on('end', function(){
+		users.push({id : doc._id, nickName : doc.nickName, userImage: base64Data });
+		
+	 }).on('error', function(err){
+		res.send(err);
+	})
+	.on('end', function(){
     res.render('list.ejs', {listUsers : users });
 
   });
@@ -235,32 +241,49 @@ app.get('/home', verifyToken, function(req, res, next) {
 // ルートアクセス時にベースの画面を返す
 // 友達の名前とそれぞれのIDをEJSでHTMLに埋め込む
 app.get('/chat', verifyToken, (req, res) => {
-	// 0への一時的な設定ID
-	if(req.query.id == 0){
-		res.render('chatapp.ejs',
-			{frendName:'ECHO' ,
-			myidf: myID ,
-			fiidf: f1ID });  
+	
+	if(req.query.id == 1) {
+		// echo
+		sendGreetings(req.id);
+		
+		const timer = setInterval(function(){
+		serachNewMessages(req.id,getRecentMessage(req.id))
+		},1000);
+		
 	}
-	//
-	 User.findOne({'_id': req.query.id}).then(user => {
+	// friends
+	User.findOne({'_id': req.query.id}).then(user => {
       if (user) {
 			res.render('chatapp.ejs',
 			{frendName:user.nickName ,
-			myidf: myID ,
-			fiidf: f1ID });      
+			myidf: req.id ,
+			fiidf: user._id ,
+			fimagef: user.userImage
+			});      
 		 }
-});
+	});
 });
 
+// ログアウトルーティング
 app.get('/logout', function(req, res, next) {
+	if(req.cookies.auth){
 	//無効化トークン
 	client.set(req.cookies.auth, req.cookies.auth);
+	}
 	//Cookiesからトークンをクリア
 	res.clearCookie("auth");
 	res.redirect('/');
 
 });
+
+// ディレクトリからスタンプを読み取り、json形式で返す
+app.get('/api/stamps', verifyToken, (req, res) => {
+	const stampDirPath = './public/files/stamps/';
+	fs.readdir(stampDirPath, (err, files) => {
+	res.json(files);
+  });
+});
+
 
 // 日時の整形処理
 function getDateTime(){
@@ -286,7 +309,6 @@ function getDateTime(){
     format_str = format_str.replace(/hh/g, hour_str);
     format_str = format_str.replace(/mm/g, minute_str);
     format_str = format_str.replace(/ss/g, second_str);
-console.log(format_str);
     return format_str;
 
 }

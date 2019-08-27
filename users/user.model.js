@@ -10,7 +10,7 @@ const schema = new Schema({
 	userImage: {type: String}
  
 }, { _id: false });
-schema.plugin(AutoIncrement);
+schema.plugin(AutoIncrement, {start_seq : 2});
 schema.set('toJSON', { virtuals: true });
 
 module.exports = mongoose.model('user', schema);

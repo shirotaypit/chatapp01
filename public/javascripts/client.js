@@ -2,13 +2,10 @@ function render(getJsonData){
     // 一旦全部の会話を消去してから再描画する（暫定：力技）
     document.getElementById('area').innerHTML = '';
     // 受信したjsonデータを自分と相手に分けて描画する
-	console.log(getJsonData);
     for(var i in getJsonData){
-		var imgHtml ="";
-        if(getJsonData[i].fromAddress==myid){
+		if(getJsonData[i].fromAddress==myid){
             var cts ="";
-			var imgHtml ="";
-            cts =  "<div class='myText'>";
+			cts =  "<div class='myText'>";
 			
 		if(getJsonData[i].message && !getJsonData[i].image ){
             cts += "  <div class='text'>"+ getJsonData[i].message + "</div>";
@@ -24,18 +21,42 @@ function render(getJsonData){
 			cts += "  <div class='imageData'><img src='"+getJsonData[i].image+"'  height='120px' width='140px' style='border-radius:5px;'/><div>";
             cts += "  <div class='textImageDate'>"+ getJsonData[i].timeStamp + "</div>";
 		}
-            cts += "</div>";
+		if(getJsonData[i].stampTitle){
+		    cts += "  <div class='imageData'><img src='/files/stamps/"+getJsonData[i].stampTitle+".png'  height='120px' width='120px'/></div>";
+            cts += "  <div class='imageDate'>"+ getJsonData[i].timeStamp + "</div>";
+		}
+		
+        cts += "</div>";
 		$('.contents').append(cts);
 
         } else {
             var cts ="";
-
             cts =  "<div class='flText'>"; 
             // 友達IDからアイコン画像ファイル名を生成している
-            cts += "  <figure><img src='images/" + f1id + ".jpg'/></figure>";
+			if(fimage){
+            cts += "  <figure><img src='" + fimage + "'/></figure>";
+			}else{
+			cts += "  <figure><img src='/images/defaultFace.png'/></figure>";
+			}
             cts += "  <div class='flText-text'>";
-            cts += "    <div class='text'>"+ getJsonData[i].message + "</div>";
-            cts += "    <div class='date'>"+ getJsonData[i].timeStamp + "</div>";
+            if(getJsonData[i].message && !getJsonData[i].image ){
+            cts += "  <div class='text'>"+ getJsonData[i].message + "</div>";
+	        cts += "  <div class='date'>"+ getJsonData[i].timeStamp + "</div>";
+		}
+		if(getJsonData[i].image && !getJsonData[i].message){
+		    cts += "  <div class='imageData'><img src='"+getJsonData[i].image+"'  height='120px' width='140px' style='border-radius:5px;'/></div>";
+            cts += "  <div class='imageDate'>"+ getJsonData[i].timeStamp + "</div>";
+		}
+		if(getJsonData[i].image && getJsonData[i].message){
+			 cts += "  <div class='text'>"+ getJsonData[i].message + "</div>";
+	        cts += "  <div class='date'>"+ getJsonData[i].timeStamp + "</div>";
+			cts += "  <div class='imageData'><img src='"+getJsonData[i].image+"'  height='120px' width='140px' style='border-radius:5px;'/><div>";
+            cts += "  <div class='textImageDate'>"+ getJsonData[i].timeStamp + "</div>";
+		}
+		if(getJsonData[i].stampTitle){
+		    cts += "  <div class='imageData'><img src='/files/stamps/"+getJsonData[i].stampTitle+".png'  height='120px' width='120px'/></div>";
+            cts += "  <div class='imageDate'>"+ getJsonData[i].timeStamp + "</div>";
+		}
             cts += "  </div>";
             cts += "</div>";
             $('.contents').append(cts);
@@ -46,9 +67,35 @@ function render(getJsonData){
     obj.scrollTop = document.getElementById('area').scrollHeight;
 }
 
+// ポップアップ画面にスタンプをレンダリングする
+function renderStamps(getJsonData){
+			
+	for(var i in getJsonData){
+		var cts ="";
+		     cts += "<tr>";
+			 cts += "<td style='text-align: center;'>";
+			 cts += "<img src='/files/stamps/"+getJsonData[i]+"' class='stampImage' id='' height='50px' width='50px' style='border-radius: 100%;' onclick='pushStamp(this,event)'/>";
+			 cts += "</td>";
+			 cts += "<td style='text-align: center;'>";
+			 cts += "<label class='stampTitle'>"+getJsonData[i].replace(".png","");+"</label>";
+			 cts += "</td>";
+             cts += " </tr>";
+			 $('.stampTable').append(cts);
+				
+    }
+	
+	
+}
+// スタンプデータをサーバーに送信します
+function pushStamp(current,event){
+		event.preventDefault();
+		$('#stampModalLong').modal('hide');
+		pushMessage($(current).parent().parent().find('.stampTitle').text());
+}
+
 // getを行いjsonデータを受領して描画関数に渡す
 function getMessages(){
-    fetch('/api/messages')
+    fetch('/api/messages?f1ID='+f1id)
         .then((data) => data.json())
         .then((json) => {
             var getJsonData = json;
@@ -57,18 +104,19 @@ function getMessages(){
 }
 
 // 入力データをサーバーにポストする
-function pushMessage(){
+function pushMessage(stampTitle){
     var text = $(".newMessage").val();
 	var imageData = $(".imageData").val();
+	var stampData = stampTitle;
 
-    if (text !='' || imageData !=''){
+    if (text !='' || imageData !='' || stampData != ''){
         fetch('/api/messages', {
             method:"POST",
             headers: {'Content-Type': 'application/json',},
-            body: JSON.stringify({mess: text, image: imageData}),
+            body: JSON.stringify({mess: text, image: imageData, stampLabel: stampData, f1ID: f1id}),
         })
         .then((data) => {
-			console.log(data);
+			
             getMessages();
             // 入力領域をクリアする
             document.getElementById('inp').value="";
@@ -81,11 +129,12 @@ $("#upload-link").on('click', function(e){
         e.preventDefault();
         $("#imageFiles").trigger('click');
     });
+	
 });
 
 $(function(){
 $("#imageFiles").on("change", function(evt) {
-		document.getElementById('error').innerHTML = '';
+		 document.getElementById('error').innerHTML = '';
 		var files = evt.target.files;
 		if(files.length == 0) return;
 		targetFile = files[0];
@@ -101,8 +150,18 @@ $("#imageFiles").on("change", function(evt) {
 	}); 
 });
 
+// 登録済みのすべてのスタンプを取得
+function getStamps(){
+	 fetch('/api/stamps')
+        .then((data) => data.json())
+        .then((json) => {
+            var getJsonData = json;
+            renderStamps(getJsonData);
+		});
+}
+
 function readJPEGFile(evt) {
-	
+		
 		var bin = evt.target.result;
 		var sigJFIF = String.fromCharCode(0x4A, 0x46, 0x49, 0x46, 0x00);
 		var sigEXIF = String.fromCharCode(0x45, 0x78, 0x69, 0x66, 0x00);
@@ -121,7 +180,7 @@ function readJPEGFile(evt) {
 
 		var height = this.height;
 		var width = this.width;
-		if (height > 400 || width > 300) {
+		if (height > 300 && width > 400) {
 			document.getElementById("error").innerHTML ='Image file size should be less than 400 x 300';
 			return;
 		}else {
@@ -131,6 +190,8 @@ function readJPEGFile(evt) {
 		}	
 		}
 		reader.readAsDataURL(targetFile);
+		
+		
 		
 }
 
