@@ -194,6 +194,9 @@ app.post('/save', [
   check('nickName', 'Nick name length must be between 4 to 12.').not().isEmpty().isLength({min: 4, max: 12}).trim().escape(),
   check('passCode', 'Passcode length must be between 6 to 12.').not().isEmpty().isLength({min: 6, max: 12}).trim().escape(),
   check('nickName').custom(value => {
+	// MongoDB Operator Injectionを防ぐために、ユーザー提供のデータをサニタイズします
+	value = value.replace(/[$.]/g, "");
+	
 	//ニックネームを検証する
     return User.findOne({'nickName': value}).then(user => {
       if (user) {
@@ -247,7 +250,10 @@ app.get('/home', verifyToken, function(req, res, next) {
 // 友達の名前とそれぞれのIDをEJSでHTMLに埋め込む
 app.get('/chat', verifyToken, (req, res) => {
 	
-	if(req.query.id == 1) {
+	var id = req.query.id;
+		// MongoDB Operator Injectionを防ぐために、ユーザー提供のデータをサニタイズします
+	id = id.replace(/[$.]/g, "");
+	 if(id == 1) {
 		// echo
 		sendGreetings(req.id);
 		
@@ -257,7 +263,7 @@ app.get('/chat', verifyToken, (req, res) => {
 		
 	}
 	// friends
-	User.findOne({'_id': req.query.id}).then(user => {
+	User.findOne({'_id': id}).then(user => {
       if (user) {
 			res.render('chatapp.ejs',
 			{frendName:user.nickName ,
