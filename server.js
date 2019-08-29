@@ -1,9 +1,6 @@
-var httpContext = require('express-http-context');
-
 var express  = require('express');
 var app = express();
 var mongoose = require('mongoose');
-//mongoose.set('debug', true);
 var bodyParser = require('body-parser');
 var ejs = require("ejs");
 var bcrypt = require('bcryptjs');
@@ -20,7 +17,7 @@ const db = require('./_helpers/db');
 const verifyToken = require('./_helpers/VerifyToken');
 const config = require('./config');
 const User = db.User;
-
+ 
 app.use(cookieParser())
 app.engine('ejs',ejs.renderFile);
 app.use(express.static(__dirname + '/public'));
@@ -33,8 +30,8 @@ client.on('connect', function() {
 });
 
 // （暫定）会話用のIDを設定
-var myID = '01';
-var f1ID = '02';
+//var myID = '01';
+//var f1ID = '02';
 var echoID = 1;
 
 // （暫定）会話用のコレクション名を作成
@@ -92,8 +89,9 @@ app.get('/api/messages', verifyToken, (req, res) => {
 
 
 // 会話内容がポストされれば、それを登録する
-app.post('/api/messages', verifyToken, (req, res) => {
-    var postData = req.body;
+app.post('/api/messages', verifyToken, [check('mess').escape()], (req, res) => {
+	var postData = req.body;
+	
     Chats.create({
             fromAddress : req.id,
             toAddress : postData.f1ID,
@@ -145,9 +143,14 @@ app.get('/', function(req, res, next) {
 });
 
 //ユーザ認証
-app.post('/auth',[check('nickName', 'Please enter nick name.').not().isEmpty().trim().escape(),
+app.post('/auth',[check('nickName', 'Please enter nick name.').not().isEmpty().trim().escape().customSanitizer(value => {
+  // MongoDB Operator Injectionを防ぐために、ユーザー提供のデータをサニタイズします
+  value = value.replace(/[$.]/g, "");
+  return value;
+}),
   check('passCode', 'Please enter passcode.').not().isEmpty().trim().escape(),
 ], (req, res) => {
+	
 		var errors = validationResult(req);
 		//検証エラー
 		if (!errors.isEmpty()) {
@@ -218,9 +221,10 @@ app.post('/save', [
 // ホームページのルーティング
 app.get('/home', verifyToken, function(req, res, next) {
 	var users = [];
-	var base64Data;
 	// ログインしたユーザーを除くすべての登録ユーザーをデータベースから取得し、ユーザー名とプロファイル画像のjsonオブジェクトを作成します
 	User.find({ nickName: {$ne: req.name}}).stream().on('data', function(doc) {
+	  var base64Data;
+		
 	  if(doc.userImage != undefined){
 		  
 		base64Data = doc.userImage.replace(/^data:image\/png;base64,/, "")
@@ -232,6 +236,7 @@ app.get('/home', verifyToken, function(req, res, next) {
 		res.send(err);
 	})
 	.on('end', function(){
+	
     res.render('list.ejs', {listUsers : users });
 
   });

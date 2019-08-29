@@ -134,7 +134,7 @@ $("#upload-link").on('click', function(e){
 
 $(function(){
 $("#imageFiles").on("change", function(evt) {
-		 document.getElementById('error').innerHTML = '';
+		document.getElementById('error').innerHTML = '';
 		var files = evt.target.files;
 		if(files.length == 0) return;
 		targetFile = files[0];
