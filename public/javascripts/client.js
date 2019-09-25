@@ -119,6 +119,7 @@ function handleError(data) {
 
 // 入力データをサーバーにポストする
 function pushMessage(stampTitle) {
+	document.getElementById('error').innerHTML = '';
 	var text = $(".newMessage").val();
 	var imageData = $(".imageData").val();
 	var stampData = stampTitle;
@@ -168,6 +169,7 @@ $(function () {
 
 // 登録済みのすべてのスタンプを取得
 function getStamps() {
+	document.getElementById('error').innerHTML = '';
 	fetch('/api/stamps')
 		.then((data) => {
 			if (data.status != 200) {
