@@ -187,6 +187,15 @@ app.get('/register', function(req, res, next) {
    res.render('register.ejs',  {errors: false});
 });
 
+//エラーページをレンダリングします
+app.get('/errorpage', function(req, res, next) {
+ if(req.query.errorcode == 403){
+  res.render('errorpage.ejs',  {error: 'Logged out because 15 minutes inactive.',errors: false});
+} else{
+  res.render('errorpage.ejs',  {error: 'System error occurred.',errors: false});
+}
+});
+
 //ユーザー登録
 app.post('/save', [
   check('nickName', 'Nick name must be alphabets only').not().isEmpty().isAlpha().trim().escape(),
