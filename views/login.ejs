@@ -8,46 +8,30 @@
 	    <link rel="stylesheet" type="text/css" href="/stylesheets/style.css">
 	</head>
 	<body>
-		<div class="row ">
-		<div class="col-md-5"></div>
-		<div class="col-md-2">
-		<h1>Chat App</h1>
-		<div class="form-group row">
-		<div class="col-md-12">
-		<form method="post" action="auth">
-		<div class="form-group row">
-		<div class="col-sm-12">
-		<% if (error) { %>
-		<div class="text-danger"><%= error %></div>
-		<% } %>
-		<% if (errors.nickName) { %>
-		<div class="text-danger"><%= errors.nickName.msg %></div>
-		<% } %>
-		<% if (errors.passCode) { %>
-		<div class="text-danger"><%= errors.passCode.msg %></div>
-		<% } %>
-		<input type="text" class="form-control" id="nickName" name="nickName" placeholder="NickName" required>
-		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-12">
-		<input type="password" class="form-control" id="passCode" name="passCode" placeholder="PassCode" required>
-		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-12 text-center">
-		<button type="submit" class="btn" style="width: 60%;">Log in</button>
-		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-12 text-center">
-		<a href="register">Create an account</a>
-		</div>
-		</div>
-		</form>
-		</div>
-		</div>
-		</div>
-		</div>
-		</body>
+	    <div class="container">
+    		<div class="row ">
+    		    <div class="col-xs-1 col-sm-2 col-md-3 col-lg-4"></div>
+        		<div class="col-xs-10 col-sm-8 col-md-6 col-lg-4">
+            		<h1>Chat App</h1>
+            		<form method="post" action="auth">
+                		<div class="form-group">
+                    		<% if (error) { %>
+                    		<div class="text-danger" style="width: 90%;margin:5%;"><%= error %></div>
+                    		<% } %>
+                    		<% if (errors.nickName) { %>
+                    		<div class="text-danger" style="width: 90%;margin:5%;"><%= errors.nickName.msg %></div>
+                    		<% } %>
+                    		<% if (errors.passCode) { %>
+                    		<div class="text-danger" style="width: 90%;margin:5%;"><%= errors.passCode.msg %></div>
+                    		<% } %>
+                    		<input type="text" class="form-control" style="width: 90%;margin:5%;" id="nickName" name="nickName" placeholder="NickName" required>
+                    		<input type="password" class="form-control" style="width: 90%;margin:5%;" id="passCode" name="passCode" placeholder="PassCode" required>
+                    		<button type="submit" class="btn" style="width: 90%;margin:5%;">Log in</button>
+                    		<center><a href="register" >Create an account</a></center>
+                		</div>
+            		</form>
+    		    </div>
+    		</div>
+    	</div>
+	</body>
 </html>

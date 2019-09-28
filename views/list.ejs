@@ -11,30 +11,38 @@
 </head>
 
 <body>
-    <div class="row">
-    <div class="col-12 col-md-12">
-	<table class="table" name="user-list-table">
-	<thead class="thead-light">
-    <tr>
-      <th colspan="2" scope="row" style="background-color:#1b313f;color:#ffffff">Friends <a href="/logout"><i class="fa fa-sign-out" style="float:right;color:white" aria-hidden="true"></a></i></th>
-    </tr>
-	</thead>
-	<tbody>
-   	<% if (listUsers) { for(var i=0; i < listUsers.length; i++) { %>
-	<tr>
-		<td style="width: 5%;text-align: center;">	<% if (listUsers[i].userImage) { %>
-		<img src="data:image/png;base64,<%= listUsers[i].userImage %>" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/>
-		<% } else {%>
-		<img src="/images/defaultFace.png" class="image" id="image-frame" height="50px" width="50px" style="border-radius: 100%;"/><% }%>
-		</td>
-		<td style="cursor:pointer;padding-top:14px;"><a  style="text-decoration:none" href="/chat?id=<%= listUsers[i].id %>"><%= listUsers[i].nickName %> さん </a>
-		</td>
-	</tr>
-	<% } }%>
-</tbody>
-</table>
-</div>
-</div>
+    <div class="container">
+        <div class="row">
+		    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+            	<table class="table" name="user-list-table">
+                	<thead class="thead-light">
+                        <tr>
+                            <th colspan="2" style="background-color:#1b313f;color:#ffffff">
+                                Friends 
+                                <a href="/logout"><i class="fa fa-sign-out" style="float:right;color:white" aria-hidden="true"></i></a>
+                            </th>
+                        </tr>
+    	            </thead>
+                	<tbody>
+       	                <% if (listUsers) { for(var i=0; i < listUsers.length; i++) { %>
+                    	    <tr>
+        		                <td width="60pv">
+        		                    <% if (listUsers[i].userImage) { %>
+                            		    <img src="data:image/png;base64,<%= listUsers[i].userImage %>" class="image" id="image-frame" height="50pv" width="50px"yle="border-radius: 100%;"/>
+        		                    <% } else {%>
+                            		    <img src="/images/defaultFace.png" class="image" id="image-frame" height="50pv" width="50pv" style="border-radius: 100%;"/>
+                            		<% }%>
+                        		</td>
+        		                <td  style="vertical-align:middle;">
+        		                    <a  href="/chat?id=<%= listUsers[i].id %>"><%= listUsers[i].nickName %> さん </a>
+                    		    </td>
+                        	</tr>
+                    	<% } }%>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
 

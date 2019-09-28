@@ -9,63 +9,51 @@
    	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	</head>
 	<body>
-		<div class="row ">
-		<div class="col-md-4"></div>
-		<div class="col-md-4">
-		<h1>Chat App</h1>
-		<div class="form-group row">
-		<div class="col-md-8">
 		<form method="post" action="save" name="register-form" id="register-form">
-		<div class="form-group row">
-		<label for="nickName" class="col-sm-5 col-form-label">NickName</label>
-		<div class="col-sm-7">
-		<input type="text" class="form-control" id="nickName" name ="nickName" placeholder="Nickname"  maxlength="12" required>
-		<% if (errors.nickName) { %>
-		<div class="text-danger"><%= errors.nickName.msg %></div>
-		<% } %>
-		</div>
-		</div>
-		<div class="form-group row">
-		<label for="passCode" class="col-sm-5 col-form-label">PassCode</label>
-		<div class="col-sm-7">
-		<input type="password" class="form-control" id="passCode" name="passCode" placeholder="Passcode" maxlength="12" required>
-		<% if (errors.passCode) { %>
-		<div class="text-danger"><%= errors.passCode.msg %></div>
-		<% } %>
-		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-10">
-		<button type="submit" class="btn rgst">Create</button>
-		</div>
-		</div>
-		</div>
-		<div class="col-md-4">
-		<div class="form-group row">
-		<div class="col-sm-10">
-		<img src="/images/defaultFace.png" class="image" id="image-frame" height="120px" width="120px" style="margin-top: -10%;"/>
-  		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-10" style="margin-left: 1.54rem;">
-		<input id="imageFile" type="file" style="visibility:hidden" name="imageFile"/>
-		<input type="button" value="Change" onclick="$('#imageFile').click();" class="btn" name="imagePath" style="margin-top: -40%;margin-left:-2%;"/>
-    	<input id="b64" name="ufile" type="hidden" value=""/>
-		<div class="text-danger" id="error"></div>
-		</div>
-		</div>
-		<div class="form-group row">
-		<div class="col-sm-10" style="margin-left: 1.54rem;">
-    	<!--<div id="info"></div><br>-->
-        <!--<input id="upbtn" type="submit" value="UPLOAD" />-->
-		</div>
-		</div>
-		</div>
+        	<div class="form-group">
+        	    <div class="container">
+            		<div class="row ">
+            		    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+                    		<h1>Chat App</h1>
+                    	</div>
+                	</div>
+                	
+            		<div class="row">
+            		    <div class="                  col-md-2 col-lg-3"></div>
+    		            <div class="col-xs-8 col-sm-8 col-md-5 col-lg-4">
+                    		<label for="nickName" class="col-form-label">NickName</label>
+                    		<input type="text" class="form-control" id="nickName" name ="nickName" placeholder="Nickname"  maxlength="12" required>
+                    		<% if (errors.nickName) { %>
+                		    <div class="text-danger"><%= errors.nickName.msg %></div>
+                    		<% } %>
+                    		<label for="passCode" class="col-form-label">PassCode</label>
+                    		<input type="password" class="form-control" id="passCode" name="passCode" placeholder="Passcode" maxlength="12" required>
+                    		<% if (errors.passCode) { %>
+                    		<div class="text-danger"><%= errors.passCode.msg %></div>
+                    		<% } %>
+                        </div>
+                        
+    		            <div class="col-xs-4 col-sm-4 col-md-3 col-lg-2">
+                    		<label for="FaceIcon" class="col-form-label">FaceIcon</label>
+                    		<img src="/images/defaultFace.png" class="image" id="image-frame" height="50pv" width="50pv"/>
+                    		<input id="imageFile" type="file" style="visibility:hidden" name="imageFile"/>
+                    		<input type="button" style="width: 100%;" value="Change" onclick="$('#imageFile').click();" class="btn" name="imagePath"/>
+                        	<input id="b64" name="ufile" type="hidden" value=""/>
+                    		<div class="text-danger" id="error"></div>
+                        </div>
+            		</div>
+    
+            		<div class="row">
+            		    <div class="                    col-md-2 col-lg-3"></div>
+            		    <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6">
+            		        </br>
+                    		<button type="submit" style="width: 100%;" class="btn rgst">Create</button>
+                    	</div>
+                	</div>
+            	</div>
+            </div>
 		</form>
-		</div>
-		</div>
-		</div>
-	</body>
+    </body>
 	<script>
    /*$("#imageFile").change(function(){
         readURL(this);
